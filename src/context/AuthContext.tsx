@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  User as FirebaseUser
+} from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 
 interface User {
   id: string;
@@ -24,145 +32,100 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 BUSCAR OU CRIAR PROFILE
+  // 🔥 BUSCAR OU CRIAR PROFILE NO FIRESTORE
   const fetchUserProfile = async (userId: string, email?: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle();
+    try {
+      const docRef = doc(db, 'profiles', userId);
+      const docSnap = await getDoc(docRef);
 
-    if (error) {
-      console.log('Erro ao buscar profile:', error.message);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      } else {
+        const newProfile = {
+          id: userId,
+          email: email || '',
+          role: (email === 'rafael2019rg@gmail.com' || email?.includes('admin')) ? 'admin' : 'user',
+          plan: null,
+          profiles: ['Meu Perfil'],
+          createdAt: new Date().toISOString()
+        };
+        await setDoc(docRef, newProfile);
+        return newProfile;
+      }
+    } catch (error) {
+      console.error('Erro ao buscar/criar profile:', error);
       return null;
     }
-
-    if (!data) {
-      const { data: newProfile, error: insertError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: userId,
-            email: email || '',
-            role: 'user',
-            plan: null,
-            profiles: ['Meu Perfil'],
-          },
-        ])
-        .select()
-        .single();
-
-      if (insertError) {
-        console.log('Erro ao criar profile:', insertError.message);
-        return null;
-      }
-
-      return newProfile;
-    }
-
-    return data;
   };
 
-  // 🔥 VERIFICAR SESSÃO
+  // 🔥 ESCUTAR MUDANÇAS NA AUTENTICAÇÃO
   useEffect(() => {
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getSession();
-
-      if (data.session?.user) {
-        const email = (data.session.user.email || '').toLowerCase();
-
-        const profile = await fetchUserProfile(
-          data.session.user.id,
-          email
-        );
-
-        const isAdminEmail =
-          email === 'rafael2019rg@gmail.com' || email.includes('admin');
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        const email = (firebaseUser.email || '').toLowerCase();
+        const profile = await fetchUserProfile(firebaseUser.uid, email);
 
         const newUser: User = {
-          id: data.session.user.id,
+          id: firebaseUser.uid,
           email,
-          role: (isAdminEmail || profile?.role === 'admin') ? 'admin' : 'user',
+          role: profile?.role || 'user',
           plan: profile?.plan || null,
           profiles: profile?.profiles || ['Meu Perfil'],
         };
-
         setUser(newUser);
+      } else {
+        setUser(null);
       }
-
       setLoading(false);
-    };
+    });
 
-    checkUser();
+    return () => unsubscribe();
   }, []);
 
   // 🔥 LOGIN
   const login = async (email: string, pass: string) => {
     setLoading(true);
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
-    });
-
-    if (error) {
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error) {
       setLoading(false);
       throw error;
     }
-
-    if (data.user) {
-      const userEmail = (data.user.email || '').toLowerCase();
-
-      const profile = await fetchUserProfile(
-        data.user.id,
-        userEmail
-      );
-
-      const isAdminEmail =
-        userEmail === 'rafael2019rg@gmail.com' ||
-        userEmail.includes('admin');
-
-      const newUser: User = {
-        id: data.user.id,
-        email: userEmail,
-        role: (isAdminEmail || profile?.role === 'admin') ? 'admin' : 'user',
-        plan: profile?.plan || null,
-        profiles: profile?.profiles || ['Meu Perfil'],
-      };
-
-      setUser(newUser);
-    }
-
     setLoading(false);
   };
 
   // 🔥 SIGNUP
   const signup = async (email: string, pass: string) => {
     setLoading(true);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: pass,
-    });
-
-    if (error) {
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+    } catch (error) {
       setLoading(false);
       throw error;
     }
-
     setLoading(false);
   };
 
   // 🔥 LOGOUT
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error('Erro ao sair:', error);
+    }
   };
 
-  // 🔥 UPDATE LOCAL
-  const updateUser = (updates: Partial<User>) => {
+  // 🔥 UPDATE LOCAL E REMOTO
+  const updateUser = async (updates: Partial<User>) => {
     if (user) {
       setUser({ ...user, ...updates });
+      try {
+        const docRef = doc(db, 'profiles', user.id);
+        await updateDoc(docRef, updates as any);
+      } catch (error) {
+        console.error('Erro ao atualizar profile remoto:', error);
+      }
     }
   };
 

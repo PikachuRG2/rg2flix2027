@@ -4,7 +4,8 @@ import Row from '../components/Row';
 import Modal from '../components/Modal';
 import Footer from '../components/Footer';
 import { requests } from '../services/api';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { Tv, Film, Clapperboard, Smile } from 'lucide-react';
 
@@ -18,24 +19,29 @@ const Home = () => {
     if (!user) return;
 
     const fetchHistory = async () => {
-      const { data, error } = await supabase
-        .from('watch_history')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('last_watched_at', { ascending: false })
-        .limit(20);
+      try {
+        const historyRef = collection(db, 'watch_history');
+        const q = query(
+          historyRef,
+          where('user_id', '==', user.id),
+          orderBy('last_watched_at', 'desc'),
+          limit(20)
+        );
 
-      if (!error && data) {
-        // Mapear para extrair o movie_data que salvamos
-        const movies = data.map(item => ({
-          ...item.movie_data,
-          // Adicionar info de progresso se tivermos salvo
-          continue_watching: {
-            season: item.season,
-            episode: item.episode
-          }
-        }));
+        const querySnapshot = await getDocs(q);
+        const movies = querySnapshot.docs.map(doc => {
+          const item = doc.data();
+          return {
+            ...item.movie_data,
+            continue_watching: {
+              season: item.season,
+              episode: item.episode
+            }
+          };
+        });
         setWatchHistory(movies);
+      } catch (error) {
+        console.error('Erro ao buscar histórico:', error);
       }
     };
 

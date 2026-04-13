@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 
 interface Plan {
   id: string;
@@ -17,7 +18,7 @@ const Plans = () => {
     { id: 'standard', name: 'Padrão', price: 39.90 },
     { id: 'premium', name: 'Premium', price: 55.90 }
   ]);
-  const { updateUser, logout } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -26,24 +27,29 @@ const Plans = () => {
   }, []);
 
   const fetchPlans = async () => {
-    const { data, error } = await supabase.from('plans').select('*');
-    if (!error && data && data.length > 0) {
-      setPlans(data);
+    try {
+      const plansRef = collection(db, 'plans');
+      const querySnapshot = await getDocs(plansRef);
+      if (!querySnapshot.empty) {
+        setPlans(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Plan)));
+      }
+    } catch (error) {
+      console.error('Erro ao buscar planos:', error);
     }
   };
 
   const handleSubscribe = async () => {
     // Atualiza o plano no banco de dados antes de mostrar o modal
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (sessionData.session?.user) {
-      await supabase
-        .from('profiles')
-        .update({ plan: 'standard' })
-        .eq('id', sessionData.session.user.id);
+    if (user) {
+      try {
+        const userRef = doc(db, 'profiles', user.id);
+        await updateDoc(userRef, { plan: 'standard' });
+        updateUser({ plan: 'standard' });
+        setShowSuccessModal(true);
+      } catch (error) {
+        console.error('Erro ao atualizar plano:', error);
+      }
     }
-
-    updateUser({ plan: 'standard' });
-    setShowSuccessModal(true);
   };
 
   const handleModalClose = async () => {

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Play, Plus, ThumbsUp, Check } from 'lucide-react';
 import api from '../services/api';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 interface Movie {
@@ -36,95 +37,74 @@ const Modal = ({ movie, onClose }: ModalProps) => {
     if (!movie || !user) return;
 
     const checkStatus = async () => {
-      // Verificar se está curtido
-      const { data: likeData } = await supabase
-        .from('likes')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('movie_id', movie.id)
-        .maybeSingle();
-      
-      setIsLiked(!!likeData);
+      try {
+        // Verificar se está curtido
+        const likesRef = collection(db, 'likes');
+        const likeQuery = query(likesRef, where('user_id', '==', user.id), where('movie_id', '==', movie.id));
+        const likeSnapshot = await getDocs(likeQuery);
+        setIsLiked(!likeSnapshot.empty);
 
-      // Verificar se está na lista
-      const { data: listData } = await supabase
-        .from('my_list')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('movie_id', movie.id)
-        .maybeSingle();
-      
-      setIsInList(!!listData);
+        // Verificar se está na lista
+        const listRef = collection(db, 'my_list');
+        const listQuery = query(listRef, where('user_id', '==', user.id), where('movie_id', '==', movie.id));
+        const listSnapshot = await getDocs(listQuery);
+        setIsInList(!listSnapshot.empty);
+      } catch (error) {
+        console.error("Erro ao verificar status:", error);
+      }
     };
 
     checkStatus();
   }, [movie, user]);
 
   const handleLike = async () => {
-    if (!user || !movie) {
-      alert("Você precisa estar logado para curtir.");
-      return;
-    }
+    if (!user || !movie) return;
 
     try {
+      const likeId = `${user.id}_${movie.id}`;
+      const likeRef = doc(db, 'likes', likeId);
+
       if (isLiked) {
-        const { error } = await supabase
-          .from('likes')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('movie_id', movie.id);
-        
-        if (error) throw error;
+        await deleteDoc(likeRef);
         setIsLiked(false);
       } else {
-        const { error } = await supabase
-          .from('likes')
-          .insert({ user_id: user.id, movie_id: movie.id });
-        
-        if (error) throw error;
+        await setDoc(likeRef, { 
+          user_id: user.id, 
+          movie_id: movie.id,
+          createdAt: new Date().toISOString()
+        });
         setIsLiked(true);
       }
     } catch (error: any) {
-      console.error("Erro ao processar like:", error.message);
-      alert(`Erro ao salvar curtida: ${error.message}. Verifique se a tabela 'likes' existe com as colunas 'user_id' e 'movie_id'.`);
+      console.error("Erro ao processar like:", error);
     }
   };
 
   const handleAddToList = async () => {
-    if (!user || !movie) {
-      alert("Você precisa estar logado para adicionar à lista.");
-      return;
-    }
+    if (!user || !movie) return;
 
     try {
+      const listId = `${user.id}_${movie.id}`;
+      const listRef = doc(db, 'my_list', listId);
+
       if (isInList) {
-        const { error } = await supabase
-          .from('my_list')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('movie_id', movie.id);
-        
-        if (error) throw error;
+        await deleteDoc(listRef);
         setIsInList(false);
       } else {
         const type = movie.media_type || (movie.first_air_date ? 'tv' : 'movie');
-        const { error } = await supabase
-          .from('my_list')
-          .insert({ 
-            user_id: user.id, 
-            movie_id: movie.id,
-            movie_data: {
-              ...movie,
-              media_type: type
-            }
-          });
-        
-        if (error) throw error;
+        await setDoc(listRef, { 
+          user_id: user.id, 
+          movie_id: movie.id,
+          movie_data: {
+            ...movie,
+            media_type: type
+          },
+          createdAt: new Date().toISOString()
+        });
         setIsInList(true);
       }
     } catch (error: any) {
-      console.error("Erro ao processar lista:", error.message);
-      alert(`Erro ao salvar na lista: ${error.message}. Verifique se a tabela 'my_list' existe com as colunas 'user_id', 'movie_id' e 'movie_data' (JSONB).`);
+      console.error("Erro ao processar lista:", error);
     }
   };
 

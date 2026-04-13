@@ -2,7 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Server, ArrowLeft } from 'lucide-react';
 import api from '../services/api';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 const Player = () => {
@@ -115,13 +116,13 @@ const Player = () => {
       setIframeLoading(true);
 
       try {
-        const { data } = await supabase
-          .from('custom_links')
-          .select('url')
-          .eq('tmdb_id', id)
-          .maybeSingle();
+        const customLinksRef = collection(db, 'custom_links');
+        const q = query(customLinksRef, where('tmdb_id', '==', id));
+        const querySnapshot = await getDocs(q);
 
-        if (data?.url) setCustomLink(data.url);
+        if (!querySnapshot.empty) {
+          setCustomLink(querySnapshot.docs[0].data().url);
+        }
 
         const { data: tmdbData } = await api.get(
           `/${type}/${id}?language=pt-BR`
@@ -217,27 +218,21 @@ const Player = () => {
 
     const saveToHistory = async () => {
       try {
-        const { error } = await supabase
-          .from('watch_history')
-          .upsert({
-            user_id: user.id,
-            tmdb_id: Number(id),
-            media_type: type,
-            season: type === 'tv' ? season : null,
-            episode: type === 'tv' ? episode : null,
-            movie_data: {
-              ...movieData,
-              media_type: type // Garantir que o tipo esteja nos dados
-            },
-            last_watched_at: new Date().toISOString()
-          }, {
-            onConflict: 'user_id, tmdb_id'
-          });
+        const historyId = `${user.id}_${id}`;
+        const historyRef = doc(db, 'watch_history', historyId);
 
-        if (error) {
-          console.error("Erro ao salvar no histórico:", error.message);
-          // Se a tabela não existir, podemos ignorar silenciosamente ou avisar no console
-        }
+        await setDoc(historyRef, {
+          user_id: user.id,
+          tmdb_id: Number(id),
+          media_type: type,
+          season: type === 'tv' ? season : null,
+          episode: type === 'tv' ? episode : null,
+          movie_data: {
+            ...movieData,
+            media_type: type
+          },
+          last_watched_at: new Date().toISOString()
+        }, { merge: true });
       } catch (err) {
         console.error("Erro inesperado ao salvar no histórico:", err);
       }

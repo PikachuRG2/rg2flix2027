@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import Modal from '../components/Modal';
 import Footer from '../components/Footer';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 const MyList = () => {
@@ -14,13 +15,15 @@ const MyList = () => {
   const fetchList = async () => {
     if (!user) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from('my_list')
-      .select('movie_data')
-      .eq('user_id', user.id);
-    
-    if (!error && data) {
-      setList(data.map(item => item.movie_data));
+    try {
+      const listRef = collection(db, 'my_list');
+      const q = query(listRef, where('user_id', '==', user.id));
+      const querySnapshot = await getDocs(q);
+      
+      const items = querySnapshot.docs.map(doc => doc.data().movie_data);
+      setList(items);
+    } catch (error) {
+      console.error('Erro ao buscar lista:', error);
     }
     setLoading(false);
   };

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Users, Film, LayoutDashboard, ChevronRight, Search, Plus, Trash2, Edit2, Check, X, CreditCard, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs, doc, setDoc, updateDoc, deleteDoc, getCountFromServer } from 'firebase/firestore';
 import api from '../services/api';
 
 interface UserProfile {
@@ -61,83 +62,88 @@ const Admin = () => {
   }, []);
 
   const fetchPlans = async () => {
-    const { data, error } = await supabase.from('plans').select('*');
-    if (error) {
+    try {
+      const plansRef = collection(db, 'plans');
+      const querySnapshot = await getDocs(plansRef);
+      
+      if (!querySnapshot.empty) {
+        setPlans(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Plan)));
+      } else {
+        const defaultPlans = [
+          { id: 'basic', name: 'Básico', price: 25.90 },
+          { id: 'standard', name: 'Padrão', price: 39.90 },
+          { id: 'premium', name: 'Premium', price: 55.90 }
+        ];
+        setPlans(defaultPlans);
+        for (const plan of defaultPlans) {
+          await setDoc(doc(db, 'plans', plan.id), { name: plan.name, price: plan.price });
+        }
+      }
+    } catch (error) {
       console.error('Erro ao buscar planos:', error);
-      setPlans([
-        { id: 'basic', name: 'Básico', price: 25.90 },
-        { id: 'standard', name: 'Padrão', price: 39.90 },
-        { id: 'premium', name: 'Premium', price: 55.90 }
-      ]);
-    } else if (data && data.length > 0) {
-      setPlans(data);
-    } else {
-      const defaultPlans = [
-        { id: 'basic', name: 'Básico', price: 25.90 },
-        { id: 'standard', name: 'Padrão', price: 39.90 },
-        { id: 'premium', name: 'Premium', price: 55.90 }
-      ];
-      setPlans(defaultPlans);
-      await supabase.from('plans').upsert(defaultPlans);
     }
   };
 
   const handleUpdatePlan = async (planId: string) => {
-    const { error } = await supabase
-      .from('plans')
-      .update({ price: planForm.price })
-      .eq('id', planId);
-
-    if (error) {
-      alert('Erro ao atualizar plano');
-    } else {
+    try {
+      const planRef = doc(db, 'plans', planId);
+      await updateDoc(planRef, { price: planForm.price });
       setEditingPlan(null);
       fetchPlans();
+    } catch (error) {
+      alert('Erro ao atualizar plano');
     }
   };
 
   const fetchCustomLinks = async () => {
-    const { data } = await supabase.from('custom_links').select('*');
-    setCustomLinks(data || []);
+    try {
+      const linksRef = collection(db, 'custom_links');
+      const querySnapshot = await getDocs(linksRef);
+      setCustomLinks(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error('Erro ao buscar links:', error);
+    }
   };
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*');
-    
-    if (error) {
+    try {
+      const usersRef = collection(db, 'profiles');
+      const querySnapshot = await getDocs(usersRef);
+      setUsers(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile)));
+    } catch (error) {
       console.error('Erro ao buscar usuários:', error);
-    } else {
-      setUsers(data || []);
     }
     setLoading(false);
   };
 
   const fetchStats = async () => {
-    const { count: total } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-    const { count: active } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).not('plan', 'is', null);
-    
-    setStats({
-      totalUsers: total || 0,
-      activePlans: active || 0,
-      revenue: (active || 0) * 39.90
-    });
+    try {
+      const usersRef = collection(db, 'profiles');
+      const totalCount = await getCountFromServer(usersRef);
+      
+      const activeQuery = query(usersRef, where('plan', '!=', null));
+      const activeCount = await getCountFromServer(activeQuery);
+      
+      setStats({
+        totalUsers: totalCount.data().count,
+        activePlans: activeCount.data().count,
+        revenue: activeCount.data().count * 39.90
+      });
+    } catch (error) {
+      console.error('Erro ao buscar stats:', error);
+    }
   };
 
   const handleUpdateUser = async (userId: string) => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role: editForm.role, plan: editForm.plan })
-      .eq('id', userId);
-
-    if (error) {
-      alert('Erro ao atualizar usuário');
-    } else {
+    try {
+      const userRef = doc(db, 'profiles', userId);
+      await updateDoc(userRef, { role: editForm.role, plan: editForm.plan });
       setEditingUser(null);
       fetchUsers();
       fetchStats();
+    } catch (error) {
+      alert('Erro ao atualizar usuário');
     }
   };
 
@@ -183,50 +189,49 @@ const Admin = () => {
   };
 
   const handleSaveBulk = async () => {
-    const { error } = await supabase
-      .from('custom_links')
-      .upsert(bulkResults.map(r => ({
-        tmdb_id: r.tmdb_id,
-        media_type: r.media_type,
-        title: r.title,
-        url: r.url
-      })));
-
-    if (error) {
-      alert('Erro ao salvar em massa: ' + error.message);
-    } else {
+    try {
+      for (const r of bulkResults) {
+        await setDoc(doc(db, 'custom_links', r.tmdb_id), {
+          tmdb_id: r.tmdb_id,
+          media_type: r.media_type,
+          title: r.title,
+          url: r.url
+        });
+      }
       setBulkResults([]);
       setBulkImportText('');
       setIsBulkImportOpen(false);
       fetchCustomLinks();
+    } catch (error: any) {
+      alert('Erro ao salvar em massa: ' + error.message);
     }
   };
 
   const handleSaveCustomLink = async () => {
     if (!addingLinkTo || !newLinkUrl) return;
 
-    const { error } = await supabase
-      .from('custom_links')
-      .upsert({
+    try {
+      await setDoc(doc(db, 'custom_links', addingLinkTo.id.toString()), {
         tmdb_id: addingLinkTo.id.toString(),
         media_type: addingLinkTo.media_type,
         url: newLinkUrl,
         title: addingLinkTo.title || addingLinkTo.name
       });
-
-    if (error) {
-      alert('Erro ao salvar link: ' + error.message);
-    } else {
       setAddingLinkTo(null);
       setNewLinkUrl('');
       fetchCustomLinks();
+    } catch (error: any) {
+      alert('Erro ao salvar link: ' + error.message);
     }
   };
 
   const handleDeleteLink = async (tmdbId: string) => {
-    const { error } = await supabase.from('custom_links').delete().eq('tmdb_id', tmdbId);
-    if (error) alert('Erro ao deletar');
-    else fetchCustomLinks();
+    try {
+      await deleteDoc(doc(db, 'custom_links', tmdbId));
+      fetchCustomLinks();
+    } catch (error) {
+      alert('Erro ao deletar');
+    }
   };
 
   const filteredUsers = users.filter(u => 
