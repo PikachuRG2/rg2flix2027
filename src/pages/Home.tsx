@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
 import Banner from '../components/Banner';
 import Row from '../components/Row';
 import Modal from '../components/Modal';
@@ -7,6 +6,7 @@ import Footer from '../components/Footer';
 import { requests } from '../services/api';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { Tv, Film, Clapperboard, Smile } from 'lucide-react';
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -50,11 +50,44 @@ const Home = () => {
 
   return (
     <div className={`relative min-h-screen bg-[#141414] ${showModal && 'overflow-hidden'}`}>
-      <Navbar />
       <main className="relative pb-24 lg:space-y-24 z-10">
         <Banner fetchUrl={requests.fetchNetflixOriginals} onMovieClick={handleMovieClick} />
         
-        <section className="md:space-y-24 relative z-10">
+        {/* Quick Access Tiles - IPTV Master Style */}
+        <div className="px-4 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <button 
+            tabIndex={0}
+            onClick={() => window.location.href = '/tv'}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <Tv className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">TV AO VIVO</span>
+          </button>
+          <button 
+            tabIndex={0}
+            onClick={() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-red-600 to-red-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <Film className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">FILMES</span>
+          </button>
+          <button 
+            tabIndex={0}
+            onClick={() => document.getElementById('series')?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-600 to-green-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <Clapperboard className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">SÉRIES</span>
+          </button>
+          <button 
+            tabIndex={0}
+            onClick={() => window.location.href = '/kids'}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <Smile className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">KIDS</span>
+          </button>
+        </div>
           {watchHistory.length > 0 && (
             <div id="continue-watching">
               <Row 

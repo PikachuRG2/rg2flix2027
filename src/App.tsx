@@ -12,6 +12,7 @@ import Kids from './pages/Kids';
 import MyList from './pages/MyList';
 import VipPlans from './pages/VipPlans';
 import SecurityManager from './components/SecurityManager';
+import MainLayout from './components/MainLayout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const ProtectedRoute = ({ children, adminOnly = false, planRequired = false }: { children: JSX.Element, adminOnly?: boolean, planRequired?: boolean }) => {
@@ -22,7 +23,7 @@ const ProtectedRoute = ({ children, adminOnly = false, planRequired = false }: {
   if (adminOnly && user.role !== 'admin') return <Navigate to="/" />;
   if (planRequired && user.role !== 'admin' && (!user.plan || user.plan === 'standard')) return <Navigate to="/plans" />;
 
-  return children;
+  return <MainLayout>{children}</MainLayout>;
 };
 
 function App() {

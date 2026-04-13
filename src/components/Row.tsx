@@ -159,7 +159,7 @@ const Row = ({
                   onMovieClick(movie);
                 }
               }}
-              className={`relative cursor-pointer transition duration-200 ease-out hover:scale-105 hover:z-[60] focus:scale-105 focus:z-[60] active:scale-95 group/item flex flex-col outline-none
+              className={`relative cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-[60] focus:scale-110 focus:z-[60] focus:ring-4 focus:ring-red-600 active:scale-95 group/item flex flex-col outline-none rounded-lg overflow-hidden p-1
                 ${isLargeRow 
                   ? 'h-[280px] min-w-[130px] md:h-[420px] md:min-w-[240px]' 
                   : 'h-32 min-w-[150px] md:h-44 md:min-w-[260px]'

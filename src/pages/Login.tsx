@@ -59,22 +59,24 @@ const Login = () => {
             <input 
               type="email" 
               placeholder="Email" 
-              className="w-full rounded bg-[#333] px-5 py-3.5 placeholder-[gray] outline-none focus:bg-[#454545] text-white transition-all border-b-2 border-transparent focus:border-red-600"
+              className="w-full rounded bg-[#333] px-5 py-3.5 placeholder-[gray] outline-none focus:bg-[#454545] text-white transition-all border-b-2 border-transparent focus:border-red-600 focus:ring-4 focus:ring-red-600/20"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
+              tabIndex={0}
             />
           </label>
           <label className="inline-block w-full">
             <input 
               type="password" 
               placeholder="Senha" 
-              className="w-full rounded bg-[#333] px-5 py-3.5 placeholder-[gray] outline-none focus:bg-[#454545] text-white transition-all border-b-2 border-transparent focus:border-red-600"
+              className="w-full rounded bg-[#333] px-5 py-3.5 placeholder-[gray] outline-none focus:bg-[#454545] text-white transition-all border-b-2 border-transparent focus:border-red-600 focus:ring-4 focus:ring-red-600/20"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
+              tabIndex={0}
             />
           </label>
         </div>
@@ -82,7 +84,8 @@ const Login = () => {
         <button 
           type="submit"
           disabled={loading}
-          className={`w-full rounded bg-red-600 py-3.5 font-bold text-white transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2
+          tabIndex={0}
+          className={`w-full rounded bg-red-600 py-3.5 font-bold text-white transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 outline-none focus:ring-4 focus:ring-white
             ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-red-700 hover:shadow-lg shadow-red-600/20'}
           `}
         >

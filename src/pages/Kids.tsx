@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Navbar from '../components/Navbar';
 import Banner from '../components/Banner';
 import Row from '../components/Row';
 import Modal from '../components/Modal';
@@ -17,7 +16,6 @@ const Kids = () => {
 
   return (
     <div className={`relative min-h-screen bg-[#141414] ${showModal && 'overflow-hidden'}`}>
-      <Navbar />
       <main className="relative pb-24 lg:space-y-24 z-10">
         <Banner fetchUrl={requests.fetchAnimationMovies} onMovieClick={handleMovieClick} />
         

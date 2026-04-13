@@ -25,7 +25,8 @@ const VipPlans = () => {
       <header className="fixed top-0 z-50 w-full px-4 py-4 bg-[#141414]/90 backdrop-blur-sm lg:px-12 flex items-center justify-between">
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 rounded-lg px-2"
+          tabIndex={0}
         >
           <ArrowLeft className="h-6 w-6" />
           <span>Voltar</span>
@@ -62,7 +63,9 @@ const VipPlans = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
               onClick={handleWhatsAppClick}
-              className="flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full font-bold text-xl transition-all hover:scale-105 shadow-lg shadow-green-900/20"
+              className="flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full font-bold text-xl transition-all hover:scale-105 shadow-lg shadow-green-900/20 focus:outline-none focus:ring-4 focus:ring-white"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleWhatsAppClick()}
             >
               <MessageCircle className="h-6 w-6" />
               Chamar no WhatsApp

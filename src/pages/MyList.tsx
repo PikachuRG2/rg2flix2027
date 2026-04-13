@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
@@ -42,8 +41,6 @@ const MyList = () => {
 
   return (
     <div className={`relative min-h-screen bg-[#141414] ${showModal && 'overflow-hidden'}`}>
-      <Navbar />
-      
       <main className="pt-24 px-4 lg:px-12 pb-24">
         <h1 className="text-3xl font-bold mb-8">Minha Lista</h1>
 
@@ -56,8 +53,10 @@ const MyList = () => {
             {list.map((item, index) => (
               <div 
                 key={`${item.id}-${index}`}
-                className="relative cursor-pointer transition-transform duration-200 hover:scale-105 group"
+                tabIndex={0}
+                className="relative cursor-pointer transition-transform duration-200 hover:scale-105 group focus:outline-none focus:ring-4 focus:ring-red-600 rounded-lg p-1"
                 onClick={() => handleMovieClick(item)}
+                onKeyDown={(e) => e.key === 'Enter' && handleMovieClick(item)}
               >
                 <img
                   src={`https://image.tmdb.org/t/p/w500/${item.poster_path || item.backdrop_path}`}
