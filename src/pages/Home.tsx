@@ -88,6 +88,8 @@ const Home = () => {
             <span className="font-bold text-lg">KIDS</span>
           </button>
         </div>
+
+        <section className="md:space-y-24 relative z-10">
           {watchHistory.length > 0 && (
             <div id="continue-watching">
               <Row 
