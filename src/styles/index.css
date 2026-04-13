@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#141414] text-white overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .banner-gradient {
+    background: linear-gradient(to top, #141414, transparent);
+  }
+  
+  .row-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Estilos para Navegação via Controle Remoto (TV) */
+  :focus-visible {
+    outline: 4px solid #E50914 !important;
+    outline-offset: 2px;
+    z-index: 100 !important;
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .nav-link:focus-visible {
+    outline: none !important;
+    color: #E50914 !important;
+    text-decoration: underline;
+    transform: scale(1.1);
+  }
+
+  button:focus-visible, 
+  a:focus-visible {
+    border-radius: 4px;
+  }
+}

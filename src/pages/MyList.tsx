@@ -1,0 +1,91 @@
+import { useState, useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import Modal from '../components/Modal';
+import Footer from '../components/Footer';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+
+const MyList = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<any>(null);
+  const [list, setList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  const fetchList = async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('my_list')
+      .select('movie_data')
+      .eq('user_id', user.id);
+    
+    if (!error && data) {
+      setList(data.map(item => item.movie_data));
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchList();
+  }, [user]);
+
+  const handleMovieClick = (movie: any) => {
+    setSelectedMovie(movie);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    fetchList(); // Recarregar a lista caso algum item tenha sido removido
+  };
+
+  return (
+    <div className={`relative min-h-screen bg-[#141414] ${showModal && 'overflow-hidden'}`}>
+      <Navbar />
+      
+      <main className="pt-24 px-4 lg:px-12 pb-24">
+        <h1 className="text-3xl font-bold mb-8">Minha Lista</h1>
+
+        {loading ? (
+          <div className="flex justify-center pt-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+          </div>
+        ) : list.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {list.map((item, index) => (
+              <div 
+                key={`${item.id}-${index}`}
+                className="relative cursor-pointer transition-transform duration-200 hover:scale-105 group"
+                onClick={() => handleMovieClick(item)}
+              >
+                <img
+                  src={`https://image.tmdb.org/t/p/w500/${item.poster_path || item.backdrop_path}`}
+                  alt={item.title || item.name}
+                  className="rounded-sm object-cover w-full h-auto"
+                />
+                <div className="mt-2 text-sm text-gray-300 group-hover:text-white truncate">
+                  {item.title || item.name || item.original_name}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center pt-20">
+            <p className="text-gray-400 text-lg">Você ainda não adicionou nada à sua lista.</p>
+          </div>
+        )}
+        <Footer />
+      </main>
+
+      {showModal && (
+        <Modal 
+          movie={selectedMovie} 
+          onClose={handleModalClose} 
+        />
+      )}
+    </div>
+  );
+};
+
+export default MyList;
