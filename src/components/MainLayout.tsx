@@ -7,9 +7,11 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const noSidebarRoutes = ['/login', '/signup', '/plans', '/player', '/watch'];
+  // Adicionar a Home (/) na lista de rotas sem sidebar para o estilo IPTV Smarters
+  const isSmartersHome = location.pathname === '/';
   const isPlayerRoute = location.pathname.startsWith('/watch') || location.pathname.startsWith('/player');
 
-  if (noSidebarRoutes.some(route => location.pathname.startsWith(route))) {
+  if (noSidebarRoutes.some(route => location.pathname.startsWith(route)) || isSmartersHome) {
     return <>{children}</>;
   }
 
