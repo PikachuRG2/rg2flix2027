@@ -20,11 +20,11 @@ const Login = () => {
       navigate("/");
     } catch (err: any) {
       console.error("Erro ao fazer login:", err);
-      // Traduzir mensagens comuns do Supabase/Auth
-      if (err.message === 'Invalid login credentials') {
+      // Traduzir mensagens comuns do Firebase
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
         setError("Email ou senha incorretos. Tente novamente.");
-      } else if (err.message.includes('Email not confirmed')) {
-        setError("Por favor, confirme seu email antes de entrar.");
+      } else if (err.code === 'auth/too-many-requests') {
+        setError("Muitas tentativas falhas. Tente novamente mais tarde.");
       } else {
         setError("Ocorreu um erro ao entrar. Verifique seus dados.");
       }

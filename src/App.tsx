@@ -11,7 +11,6 @@ import TvEsportes from './pages/TvEsportes';
 import Kids from './pages/Kids';
 import MyList from './pages/MyList';
 import VipPlans from './pages/VipPlans';
-import SecurityManager from './components/SecurityManager';
 import MainLayout from './components/MainLayout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -29,7 +28,6 @@ const ProtectedRoute = ({ children, adminOnly = false, planRequired = false }: {
 function App() {
   return (
     <AuthProvider>
-      <SecurityManager />
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />

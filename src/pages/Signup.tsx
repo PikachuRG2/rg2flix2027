@@ -17,7 +17,15 @@ const Signup = () => {
       navigate('/plans');
     } catch (error: any) {
       console.error('Erro ao criar conta:', error);
-      alert(error.message || 'Erro ao criar conta');
+      let message = 'Ocorreu um erro ao criar sua conta.';
+      if (error.code === 'auth/email-already-in-use') {
+        message = 'Este email já está em uso.';
+      } else if (error.code === 'auth/weak-password') {
+        message = 'A senha deve ter pelo menos 6 caracteres.';
+      } else if (error.code === 'auth/invalid-email') {
+        message = 'Formato de email inválido.';
+      }
+      alert(message);
     } finally {
       setLoading(false);
     }
