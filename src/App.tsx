@@ -12,6 +12,9 @@ import TvEsportes from './pages/TvEsportes';
 import Kids from './pages/Kids';
 import MyList from './pages/MyList';
 import VipPlans from './pages/VipPlans';
+import Movies from './pages/Movies';
+import Series from './pages/Series';
+import ContinueWatching from './pages/ContinueWatching';
 import MainLayout from './components/MainLayout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -79,6 +82,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <VipPlans />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/movies" 
+            element={
+              <ProtectedRoute>
+                <Movies />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/series" 
+            element={
+              <ProtectedRoute>
+                <Series />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/continue-watching" 
+            element={
+              <ProtectedRoute>
+                <ContinueWatching />
               </ProtectedRoute>
             } 
           />

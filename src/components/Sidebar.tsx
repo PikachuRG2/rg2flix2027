@@ -20,11 +20,11 @@ const Sidebar = ({ isMobile = false, onClose }: SidebarProps) => {
     { icon: Home, label: 'Início', path: '/' },
     { icon: Tv, label: 'TV Ao Vivo', path: '/tv', planRequired: true },
     { icon: MonitorPlay, label: 'TV Esportes', path: '/tv-esportes', planRequired: true },
-    { icon: Film, label: 'Filmes', path: '/movies', scrollId: 'movies' },
-    { icon: Clapperboard, label: 'Séries', path: '/series', scrollId: 'series' },
+    { icon: Film, label: 'Filmes', path: '/movies' },
+    { icon: Clapperboard, label: 'Séries', path: '/series' },
     { icon: Smile, label: 'Kids', path: '/kids' },
     { icon: List, label: 'Minha Lista', path: '/my-list' },
-    { icon: History, label: 'Continuar Assistindo', scrollId: 'continue-watching' },
+    { icon: History, label: 'Continuar Assistindo', path: '/continue-watching' },
   ];
 
   if (user?.role === 'admin') {

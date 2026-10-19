@@ -8,7 +8,7 @@ import { requests } from '../services/api';
 import { db } from '../lib/firebase';
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-import { Tv, Film, Clapperboard, Smile } from 'lucide-react';
+import { Tv, Film, Clapperboard, Smile, Search, MonitorPlay, List, History } from 'lucide-react';
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -60,8 +60,16 @@ const Home = () => {
       <main className="relative pb-24 lg:space-y-24 z-10">
         <Banner fetchUrl={requests.fetchNetflixOriginals} onMovieClick={handleMovieClick} />
         
-        {/* Quick Access Tiles */}
+        {/* Quick Access Tiles - mesmos atalhos da Sidebar */}
         <div className="px-4 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <button 
+            tabIndex={0}
+            onClick={() => navigate('/search')}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <Search className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">BUSCAR</span>
+          </button>
           <button 
             tabIndex={0}
             onClick={() => navigate('/tv')}
@@ -72,7 +80,15 @@ const Home = () => {
           </button>
           <button 
             tabIndex={0}
-            onClick={() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => navigate('/tv-esportes')}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-cyan-600 to-cyan-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <MonitorPlay className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">TV ESPORTES</span>
+          </button>
+          <button 
+            tabIndex={0}
+            onClick={() => navigate('/movies')}
             className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-red-600 to-red-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
           >
             <Film className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
@@ -80,7 +96,7 @@ const Home = () => {
           </button>
           <button 
             tabIndex={0}
-            onClick={() => document.getElementById('series')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => navigate('/series')}
             className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-600 to-green-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
           >
             <Clapperboard className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
@@ -93,6 +109,22 @@ const Home = () => {
           >
             <Smile className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
             <span className="font-bold text-lg">KIDS</span>
+          </button>
+          <button 
+            tabIndex={0}
+            onClick={() => navigate('/my-list')}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-600 to-pink-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <List className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">MINHA LISTA</span>
+          </button>
+          <button 
+            tabIndex={0}
+            onClick={() => navigate('/continue-watching')}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-orange-600 to-orange-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
+          >
+            <History className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />
+            <span className="font-bold text-lg">CONTINUAR ASSISTINDO</span>
           </button>
         </div>
 

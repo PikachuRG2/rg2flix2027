@@ -12,6 +12,8 @@ export const requests = {
   fetchRomanceMovies: `/discover/movie?with_genres=10749&watch_region=BR&with_original_language=en|pt|es`,
   fetchDocumentaries: `/discover/movie?with_genres=99&watch_region=BR&with_original_language=en|pt|es`,
   fetchAnimes: `/discover/tv?with_genres=16&with_original_language=ja&language=pt-BR`,
+  fetchSeriesPopular: `/tv/popular?language=pt-BR`,
+  fetchSeriesTopRated: `/tv/top_rated?language=pt-BR`,
   fetchKidsMovies: `/discover/movie?with_genres=10751&language=pt-BR`,
   fetchKidsTV: `/discover/tv?with_genres=10762&language=pt-BR`,
   fetchAnimationMovies: `/discover/movie?with_genres=16&language=pt-BR`,
