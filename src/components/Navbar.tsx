@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, Bell, User, LogOut, Settings, X, Menu, ChevronDown, ShieldCheck } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings, X, Menu, ChevronDown, ShieldCheck, Monitor } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import CountdownTimer from './CountdownTimer';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -12,8 +13,14 @@ const Navbar = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const { user, logout } = useAuth();
+  const { user, logout, hasTrialAccess } = useAuth();
   const navigate = useNavigate();
+
+  // Verificar se tem acesso aos filmes pagos
+  const hasFilmesPagosAccess = 
+    user?.role === 'admin' || 
+    user?.plan === 'basic' || 
+    user?.plan === 'premium';
 
   // Fechar menu ao clicar fora
   useEffect(() => {
@@ -109,7 +116,7 @@ const Navbar = () => {
                       Painel Admin
                     </li>
                   )}
-                  {(user?.role === 'admin' || (user?.plan && user.plan !== 'standard')) && (
+                  {hasTrialAccess() && (
                     <>
                       <li 
                         className="px-4 py-3 text-center text-sm text-gray-300 hover:bg-white/10 transition-colors cursor-pointer focus:bg-white/20 outline-none" 
@@ -172,12 +179,24 @@ const Navbar = () => {
                     tabIndex={0} 
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        navigate('/');
-                        setTimeout(() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                        if (hasFilmesPagosAccess) {
+                          navigate('/filmes-pagos');
+                        } else {
+                          navigate('/');
+                          setTimeout(() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                        }
                         setShowMobileMenu(false);
                       }
                     }} 
-                    onClick={() => { navigate('/'); setTimeout(() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' }), 100); setShowMobileMenu(false); }}
+                    onClick={() => { 
+                      if (hasFilmesPagosAccess) {
+                        navigate('/filmes-pagos');
+                      } else {
+                        navigate('/');
+                        setTimeout(() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                      }
+                      setShowMobileMenu(false); 
+                    }}
                   >
                     Filmes
                   </li>
@@ -239,7 +258,7 @@ const Navbar = () => {
             >
               Início
             </li>
-            {(user?.role === 'admin' || (user?.plan && user.plan !== 'standard')) && (
+            {hasTrialAccess() && (
               <>
                 <li 
                   className="nav-link cursor-pointer text-gray-300 hover:text-white transition outline-none focus-visible:text-white focus-visible:underline" 
@@ -298,11 +317,22 @@ const Navbar = () => {
               tabIndex={0} 
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
+                  if (hasFilmesPagosAccess) {
+                    navigate('/filmes-pagos');
+                  } else {
+                    navigate('/');
+                    setTimeout(() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                  }
+                }
+              }} 
+              onClick={() => { 
+                if (hasFilmesPagosAccess) {
+                  navigate('/filmes-pagos');
+                } else {
                   navigate('/');
                   setTimeout(() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' }), 100);
                 }
-              }} 
-              onClick={() => { navigate('/'); setTimeout(() => document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              }}
             >
               Filmes
             </li>
@@ -344,6 +374,10 @@ const Navbar = () => {
               Planos Vip
             </li>
           </ul>
+        </div>
+
+        <div className="ml-4">
+          <CountdownTimer />
         </div>
 
         <div className="flex items-center space-x-4 text-sm font-light">
@@ -421,6 +455,14 @@ const Navbar = () => {
                     <span className="font-semibold">Painel Admin</span>
                   </Link>
                 )}
+                <Link 
+                  to="/devices" 
+                  className="flex items-center px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 hover:text-white transition-colors border-b border-gray-800"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <Monitor className="mr-3 h-4 w-4 text-gray-400" /> 
+                  <span>Gerenciar Dispositivos</span>
+                </Link>
                 <button 
                   onClick={() => {
                     logout();

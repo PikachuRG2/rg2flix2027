@@ -15,16 +15,23 @@ import VipPlans from './pages/VipPlans';
 import Movies from './pages/Movies';
 import Series from './pages/Series';
 import ContinueWatching from './pages/ContinueWatching';
+import Devices from './pages/Devices';
+import FilmesPagos from './pages/FilmesPagos';
+import TermsOfUse from './pages/TermsOfUse';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import SecurityManager from './components/SecurityManager';
+import OnlineUsersCounter from './components/OnlineUsersCounter';
 import MainLayout from './components/MainLayout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-const ProtectedRoute = ({ children, adminOnly = false, planRequired = false }: { children: JSX.Element, adminOnly?: boolean, planRequired?: boolean }) => {
-  const { user, loading } = useAuth();
+const ProtectedRoute = ({ children, adminOnly = false, planRequired = false, tvRequired = false }: { children: JSX.Element, adminOnly?: boolean, planRequired?: boolean, tvRequired?: boolean }) => {
+  const { user, loading, hasTrialAccess } = useAuth();
 
   if (loading) return <div className="h-screen w-screen flex items-center justify-center bg-black">Carregando...</div>;
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && user.role !== 'admin') return <Navigate to="/" />;
   if (planRequired && user.role !== 'admin' && (!user.plan || user.plan === 'standard')) return <Navigate to="/plans" />;
+  if (tvRequired && !hasTrialAccess()) return <Navigate to="/vip-plans" />;
 
   return <MainLayout>{children}</MainLayout>;
 };
@@ -32,11 +39,31 @@ const ProtectedRoute = ({ children, adminOnly = false, planRequired = false }: {
 function App() {
   return (
     <AuthProvider>
+      <SecurityManager />
+      <OnlineUsersCounter />
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/plans" element={<Plans />} />
+          <Route path="/terms" element={<TermsOfUse />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route 
+            path="/devices" 
+            element={
+              <ProtectedRoute>
+                <Devices />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/filmes-pagos" 
+            element={
+              <ProtectedRoute>
+                <FilmesPagos />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/" 
             element={
@@ -48,7 +75,7 @@ function App() {
           <Route 
             path="/tv" 
             element={
-              <ProtectedRoute planRequired>
+              <ProtectedRoute tvRequired>
                 <TV />
               </ProtectedRoute>
             } 
@@ -56,7 +83,7 @@ function App() {
           <Route 
             path="/tv-esportes" 
             element={
-              <ProtectedRoute planRequired>
+              <ProtectedRoute tvRequired>
                 <TvEsportes />
               </ProtectedRoute>
             } 

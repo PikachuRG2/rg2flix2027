@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Footer = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,9 +45,9 @@ const Footer = () => {
           </p>
 
           <div className="flex space-x-6 text-xs text-gray-600">
-            <span className="hover:text-gray-400 cursor-pointer">Termos de Uso</span>
-            <span className="hover:text-gray-400 cursor-pointer">Privacidade</span>
-            <span className="hover:text-gray-400 cursor-pointer">Ajuda</span>
+            <Link to="/terms" className="hover:text-gray-400 cursor-pointer">Termos de Uso</Link>
+            <Link to="/privacy" className="hover:text-gray-400 cursor-pointer">Privacidade</Link>
+            <Link to="/devices" className="hover:text-gray-400 cursor-pointer">Ajuda</Link>
           </div>
         </div>
       </div>

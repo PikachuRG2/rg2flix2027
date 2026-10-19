@@ -51,5 +51,13 @@ service cloud.firestore {
       allow create, update: if request.auth != null
         && request.resource.data.user_id == request.auth.uid;
     }
+
+    // Sessões de dispositivos: dono apenas
+    match /user_sessions/{sessionId} {
+      allow read, delete: if request.auth != null
+        && resource.data.user_id == request.auth.uid;
+      allow create, update: if request.auth != null
+        && request.resource.data.user_id == request.auth.uid;
+    }
   }
 }
