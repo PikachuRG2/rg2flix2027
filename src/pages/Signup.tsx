@@ -36,7 +36,7 @@ const Signup = () => {
       <div className="absolute top-0 left-0 -z-10 h-full w-full bg-hero-pattern bg-cover bg-no-repeat opacity-50 hidden md:block" />
       
       <div className="md:px-14 py-4 md:absolute md:top-0 md:left-0 flex items-center space-x-2">
-        <img src="/logo.png" alt="RG2 FLIX" className="h-10 md:h-12 object-contain" />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="RG2 FLIX" className="h-10 md:h-12 object-contain" />
         <h1 className="text-3xl font-bold text-white">RG2 FLIX</h1>
       </div>
 

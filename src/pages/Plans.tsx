@@ -66,7 +66,7 @@ const Plans = () => {
     <div className="flex flex-col min-h-screen bg-white text-black">
       <header className="border-b border-gray-200 px-10 py-5 flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <img src="/logo.png" alt="RG2 FLIX" className="h-8 md:h-10 object-contain" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="RG2 FLIX" className="h-8 md:h-10 object-contain" />
           <h1 className="text-3xl font-bold text-gray-900">RG2 FLIX</h1>
         </div>
         <button className="font-semibold text-lg hover:underline">Sair</button>

@@ -68,7 +68,7 @@ const Sidebar = ({ isMobile = false, onClose }: SidebarProps) => {
     >
       <div className="w-full mb-10 flex items-center justify-between">
         <div className={`flex items-center gap-3 transition-all duration-300 ${isExpanded ? 'scale-100' : 'scale-75'}`}>
-          <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" className="w-10 h-10 object-contain" />
           {isExpanded && <span className="text-xl font-bold text-white whitespace-nowrap">RG2 FLIX</span>}
         </div>
         {isMobile && (

@@ -36,7 +36,7 @@ const Footer = () => {
         {/* Informações e Direitos */}
         <div className="flex flex-col items-center space-y-4 text-center">
           <div className="flex items-center space-x-2">
-            <img src="/logo.png" alt="RG2 FLIX" className="h-6 object-contain opacity-50" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="RG2 FLIX" className="h-6 object-contain opacity-50" />
             <span className="text-gray-500 font-bold tracking-widest text-xs uppercase">RG2 FLIX</span>
           </div>
           

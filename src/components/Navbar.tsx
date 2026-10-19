@@ -63,7 +63,7 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4 md:space-x-10">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.png" alt="RG2 FLIX" className="h-8 md:h-10 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="RG2 FLIX" className="h-8 md:h-10 object-contain" />
             <h1 className="text-2xl font-bold text-white md:text-3xl">RG2 FLIX</h1>
           </Link>
           

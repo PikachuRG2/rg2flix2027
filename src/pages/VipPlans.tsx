@@ -32,7 +32,7 @@ const VipPlans = () => {
           <span>Voltar</span>
         </button>
         <div className="flex items-center space-x-2">
-          <img src="/logo.png" alt="RG2 FLIX" className="h-8 object-contain" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="RG2 FLIX" className="h-8 object-contain" />
           <h1 className="text-xl font-bold">RG2 FLIX VIP</h1>
         </div>
         <div className="w-20" /> {/* Spacer */}
