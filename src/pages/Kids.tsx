@@ -21,13 +21,16 @@ const Kids = () => {
         
         <section className="md:space-y-24 relative z-10">
           <div id="drawings">
-            <Row title="Desenhos Animados" fetchUrl={requests.fetchKidsTV} isLargeRow onMovieClick={handleMovieClick} />
+            <Row title="Séries de Desenhos" fetchUrl={requests.fetchAnimationTV} isLargeRow onMovieClick={handleMovieClick} />
           </div>
           <div id="animation-movies">
             <Row title="Filmes de Animação" fetchUrl={requests.fetchAnimationMovies} onMovieClick={handleMovieClick} />
           </div>
+          <div id="kids-tv">
+            <Row title="Desenhos Kids" fetchUrl={requests.fetchKidsTV} onMovieClick={handleMovieClick} />
+          </div>
           <div id="family">
-            <Row title="Para toda a Família" fetchUrl={requests.fetchKidsMovies} onMovieClick={handleMovieClick} />
+            <Row title="Para toda a Família" fetchUrl={requests.fetchKidsMovies} isLargeRow onMovieClick={handleMovieClick} />
           </div>
         </section>
         <Footer />

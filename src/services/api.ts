@@ -16,6 +16,7 @@ export const requests = {
   fetchSeriesTopRated: `/tv/top_rated?language=pt-BR`,
   fetchKidsMovies: `/discover/movie?with_genres=10751&language=pt-BR`,
   fetchKidsTV: `/discover/tv?with_genres=10762&language=pt-BR`,
+  fetchAnimationTV: `/discover/tv?with_genres=16&language=pt-BR`,
   fetchAnimationMovies: `/discover/movie?with_genres=16&language=pt-BR`,
   fetchMovieVideos: (id: number) => `/movie/${id}/videos?language=pt-BR`,
   fetchTvVideos: (id: number) => `/tv/${id}/videos?language=pt-BR`,

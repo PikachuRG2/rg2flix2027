@@ -2,7 +2,29 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import api, { requests } from '../services/api';
-import { Search as SearchIcon } from 'lucide-react';
+import catalogApi from '../services/catalogApi';
+import { Search as SearchIcon, CheckCircle2, XCircle } from 'lucide-react';
+
+// Cache dos IDs do catálogo (carregado uma vez por sessão)
+let catalogCache: { movies: Set<number>; series: Set<number> } | null = null;
+let catalogPromise: Promise<{ movies: Set<number>; series: Set<number> }> | null = null;
+
+const getCatalogIds = async () => {
+  if (catalogCache) return catalogCache;
+  if (!catalogPromise) {
+    catalogPromise = catalogApi.get('/all-ids').then(({ data }) => {
+      const movies = new Set<number>();
+      const series = new Set<number>();
+      if (data?.status === 'success') {
+        (data.results?.movies || []).forEach((i: any) => movies.add(Number(i.tmdb_id)));
+        (data.results?.series || []).forEach((i: any) => series.add(Number(i.tmdb_id)));
+      }
+      catalogCache = { movies, series };
+      return catalogCache;
+    }).catch(() => ({ movies: new Set<number>(), series: new Set<number>() }));
+  }
+  return catalogPromise;
+};
 
 const Search = () => {
   const [searchParams] = useSearchParams();
@@ -24,11 +46,24 @@ const Search = () => {
     const fetchResults = async () => {
       setLoading(true);
       try {
-        const { data } = await api.get(requests.fetchSearch(query));
-        const filtered = data.results.filter((item: any) => 
-          (item.media_type === 'movie' || item.media_type === 'tv') && 
-          (item.poster_path || item.backdrop_path)
-        );
+        // Busca metadados no TMDB e os IDs do catálogo em paralelo
+        const [{ data }, catalog] = await Promise.all([
+          api.get(requests.fetchSearch(query)),
+          getCatalogIds(),
+        ]);
+        const filtered = (data.results || [])
+          .filter((item: any) =>
+            (item.media_type === 'movie' || item.media_type === 'tv') &&
+            (item.poster_path || item.backdrop_path)
+          )
+          .map((item: any) => ({
+            ...item,
+            inCatalog: item.media_type === 'movie'
+              ? catalog.movies.has(Number(item.id))
+              : catalog.series.has(Number(item.id)),
+          }))
+          // Disponíveis no catálogo primeiro, depois por popularidade
+          .sort((a: any, b: any) => (b.inCatalog ? 1 : 0) - (a.inCatalog ? 1 : 0) || (b.popularity || 0) - (a.popularity || 0));
         setResults(filtered);
       } catch (error) {
         console.error("Erro na busca:", error);
@@ -93,17 +128,35 @@ const Search = () => {
               <div 
                 key={item.id}
                 tabIndex={0}
-                className="relative cursor-pointer transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-600 rounded-lg p-1 group"
+                className={`relative cursor-pointer transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-600 rounded-lg p-1 group ${item.inCatalog ? '' : 'opacity-60'}`}
                 onClick={() => handleMovieClick(item)}
                 onKeyDown={(e) => e.key === 'Enter' && handleMovieClick(item)}
               >
-                <img
-                  src={`https://image.tmdb.org/t/p/w500/${item.poster_path || item.backdrop_path}`}
-                  alt={item.title || item.name}
-                  className="rounded-sm object-cover w-full h-auto"
-                />
+                <div className="relative">
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500/${item.poster_path || item.backdrop_path}`}
+                    alt={item.title || item.name}
+                    className="rounded-sm object-cover w-full h-auto"
+                  />
+                  <span
+                    className={`absolute top-2 left-2 flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 ${
+                      item.inCatalog
+                        ? 'bg-green-600/90 text-white ring-green-300/50'
+                        : 'bg-black/80 text-gray-400 ring-white/20'
+                    }`}
+                  >
+                    {item.inCatalog ? (
+                      <><CheckCircle2 className="w-3 h-3" /> No catálogo</>
+                    ) : (
+                      <><XCircle className="w-3 h-3" /> Fora do catálogo</>
+                    )}
+                  </span>
+                </div>
                 <div className="mt-2 text-sm text-gray-300 group-focus:text-white truncate">
                   {item.title || item.name}
+                  <span className="text-gray-500 ml-1">
+                    ({item.media_type === 'movie' ? 'Filme' : 'Série'})
+                  </span>
                 </div>
               </div>
             ))}
