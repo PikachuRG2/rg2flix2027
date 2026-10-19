@@ -28,6 +28,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const ADMIN_EMAIL = 'rafael2019rg@gmail.com';
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,12 +41,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        return docSnap.data();
+        const data = docSnap.data();
+        // Garante que o e-mail admin sempre tenha role admin, mesmo se o perfil já existir como 'user'
+        if (email === ADMIN_EMAIL && data.role !== 'admin') {
+          try {
+            await updateDoc(docRef, { role: 'admin' });
+            return { ...data, role: 'admin' };
+          } catch (e) {
+            console.error('Erro ao promover admin:', e);
+          }
+        }
+        return data;
       } else {
         const newProfile = {
           id: userId,
           email: email || '',
-          role: (email === 'rafael2019rg@gmail.com' || email?.includes('admin')) ? 'admin' : 'user',
+          role: email === ADMIN_EMAIL ? 'admin' : 'user',
           plan: null,
           profiles: ['Meu Perfil'],
           createdAt: new Date().toISOString()
