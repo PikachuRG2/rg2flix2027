@@ -388,6 +388,8 @@ const Navbar = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
+                  id="navbar-search"
+                  name="q"
                   placeholder="Títulos, gente, gêneros"
                   className="bg-transparent border-none focus:ring-0 text-white placeholder-gray-500 text-sm ml-2 w-40 md:w-60 outline-none"
                   value={searchQuery}

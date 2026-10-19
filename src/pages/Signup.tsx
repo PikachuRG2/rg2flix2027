@@ -50,6 +50,8 @@ const Signup = () => {
           <label className="inline-block w-full">
             <input 
               type="email" 
+              id="signup-email"
+              name="email"
               placeholder="Email" 
               className="w-full rounded bg-[#333] px-5 py-3.5 placeholder-[gray] outline-none focus:bg-[#454545] text-white transition-all border-b-2 border-transparent focus:border-red-600 focus:ring-4 focus:ring-red-600/20"
               value={email}
@@ -62,6 +64,8 @@ const Signup = () => {
           <label className="inline-block w-full">
             <input 
               type="password" 
+              id="signup-password"
+              name="password"
               placeholder="Senha" 
               className="w-full rounded bg-[#333] px-5 py-3.5 placeholder-[gray] outline-none focus:bg-[#454545] text-white transition-all border-b-2 border-transparent focus:border-red-600 focus:ring-4 focus:ring-red-600/20"
               value={password}

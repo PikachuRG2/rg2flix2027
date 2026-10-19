@@ -95,6 +95,8 @@ const Search = () => {
             <input
               ref={inputRef}
               type="text"
+              id="main-search"
+              name="q"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="O que você quer assistir hoje?"

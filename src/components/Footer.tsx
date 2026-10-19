@@ -24,6 +24,8 @@ const Footer = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 group-focus-within:text-red-600 transition-colors" />
             <input
               type="text"
+              id="footer-search"
+              name="q"
               placeholder="O que você quer assistir hoje?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

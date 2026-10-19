@@ -309,6 +309,8 @@ const Admin = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
               <input 
                 type="text" 
+                id="admin-user-search"
+                name="user_search"
                 placeholder="Pesquisar..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -359,6 +361,7 @@ const Admin = () => {
                     <td className="p-4">
                       {editingUser === u.id ? (
                         <select 
+                          name="role"
                           className="bg-gray-800 border border-gray-700 rounded p-1 text-xs"
                           value={editForm.role}
                           onChange={(e) => setEditForm({...editForm, role: e.target.value})}
@@ -375,6 +378,7 @@ const Admin = () => {
                     <td className="p-4">
                       {editingUser === u.id ? (
                         <select 
+                          name="plan"
                           className="bg-gray-800 border border-gray-700 rounded p-1 text-xs"
                           value={editForm.plan || ''}
                           onChange={(e) => setEditForm({...editForm, plan: e.target.value || null})}
@@ -445,6 +449,8 @@ const Admin = () => {
                   <div className="flex gap-4">
                     <input 
                       type="text" 
+                      id="admin-tmdb-search"
+                      name="tmdb_search"
                       placeholder="Pesquisar filme ou série no TMDB..."
                       className="flex-1 bg-black border border-gray-700 rounded px-4 py-2 focus:border-red-600 outline-none"
                       value={searchContent}
@@ -486,6 +492,8 @@ const Admin = () => {
                       <div className="flex gap-4">
                         <input 
                           type="text" 
+                          id="admin-link-url"
+                          name="link_url"
                           placeholder="Cole aqui o link do filme (ex: https://...)"
                           className="flex-1 bg-black border border-gray-700 rounded px-4 py-2 focus:border-red-600 outline-none"
                           value={newLinkUrl}
@@ -518,6 +526,8 @@ const Admin = () => {
                   </div>
                   
                   <textarea 
+                    id="admin-bulk-import"
+                    name="bulk_import"
                     className="w-full h-64 bg-black border border-gray-700 rounded p-4 text-sm font-mono outline-none focus:border-blue-600"
                     placeholder="Nome do Filme - Link..."
                     value={bulkImportText}
@@ -637,6 +647,8 @@ const Admin = () => {
                             <label className="text-xs text-gray-500 uppercase font-bold mb-1 block">Preço Mensal (R$)</label>
                             <input 
                               type="number" 
+                              id="plan-price"
+                              name="price"
                               step="0.01"
                               className="w-full bg-gray-900 border border-red-600 rounded px-3 py-2 text-xl font-bold outline-none"
                               value={planForm.price}
