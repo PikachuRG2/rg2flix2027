@@ -19,7 +19,7 @@ const Sidebar = ({ isMobile = false, onClose }: SidebarProps) => {
     { icon: Search, label: 'Buscar', path: '/search' },
     { icon: Home, label: 'Início', path: '/' },
     { icon: Tv, label: 'TV Ao Vivo', path: '/tv', planRequired: true },
-    { icon: MonitorPlay, label: 'TV Esportes', url: 'https://rg2tv.blogspot.com/p/grade-de-esportes.html' },
+    { icon: MonitorPlay, label: 'TV Esportes', path: '/tv-esportes' },
     { icon: Film, label: 'Filmes', path: '/movies' },
     { icon: Clapperboard, label: 'Séries', path: '/series' },
     { icon: Smile, label: 'Kids', path: '/kids' },
