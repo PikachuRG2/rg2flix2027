@@ -80,7 +80,7 @@ const Home = () => {
           </button>
           <button 
             tabIndex={0}
-            onClick={() => navigate('/tv-esportes')}
+            onClick={() => window.open('https://rg2tv.blogspot.com/p/grade-de-esportes.html', '_blank', 'noopener,noreferrer')}
             className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-cyan-600 to-cyan-800 rounded-xl hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-white group"
           >
             <MonitorPlay className="w-12 h-12 mb-2 group-focus:scale-110 transition-transform" />

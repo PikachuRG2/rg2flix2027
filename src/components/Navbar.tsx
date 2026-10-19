@@ -114,11 +114,11 @@ const Navbar = () => {
                         tabIndex={0} 
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            navigate('/tv-esportes');
+                            window.open('https://rg2tv.blogspot.com/p/grade-de-esportes.html', '_blank', 'noopener,noreferrer');
                             setShowMobileMenu(false);
                           }
                         }} 
-                        onClick={() => { navigate('/tv-esportes'); setShowMobileMenu(false); }}
+                        onClick={() => { window.open('https://rg2tv.blogspot.com/p/grade-de-esportes.html', '_blank', 'noopener,noreferrer'); setShowMobileMenu(false); }}
                       >
                         Tv Esportes
                       </li>
@@ -243,10 +243,10 @@ const Navbar = () => {
                   tabIndex={0} 
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      navigate('/tv-esportes');
+                      window.open('https://rg2tv.blogspot.com/p/grade-de-esportes.html', '_blank', 'noopener,noreferrer');
                     }
                   }} 
-                  onClick={() => navigate('/tv-esportes')}
+                  onClick={() => window.open('https://rg2tv.blogspot.com/p/grade-de-esportes.html', '_blank', 'noopener,noreferrer')}
                 >
                   Tv Esportes
                 </li>

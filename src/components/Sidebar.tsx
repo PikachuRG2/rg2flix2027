@@ -19,7 +19,7 @@ const Sidebar = ({ isMobile = false, onClose }: SidebarProps) => {
     { icon: Search, label: 'Buscar', path: '/search' },
     { icon: Home, label: 'Início', path: '/' },
     { icon: Tv, label: 'TV Ao Vivo', path: '/tv', planRequired: true },
-    { icon: MonitorPlay, label: 'TV Esportes', path: '/tv-esportes', planRequired: true },
+    { icon: MonitorPlay, label: 'TV Esportes', url: 'https://rg2tv.blogspot.com/p/grade-de-esportes.html' },
     { icon: Film, label: 'Filmes', path: '/movies' },
     { icon: Clapperboard, label: 'Séries', path: '/series' },
     { icon: Smile, label: 'Kids', path: '/kids' },
@@ -38,7 +38,9 @@ const Sidebar = ({ isMobile = false, onClose }: SidebarProps) => {
   };
 
   const handleItemClick = (item: any) => {
-    if (item.path) {
+    if (item.url) {
+      window.open(item.url, '_blank', 'noopener,noreferrer');
+    } else if (item.path) {
       navigate(item.path);
     } else if (item.scrollId) {
       const element = document.getElementById(item.scrollId);
