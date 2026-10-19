@@ -2,26 +2,27 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import api, { requests } from '../services/api';
-import catalogApi from '../services/catalogApi';
 import { Search as SearchIcon, CheckCircle2, XCircle } from 'lucide-react';
 
-// Cache dos IDs do catálogo (carregado uma vez por sessão)
+// Cache dos IDs do catálogo (arquivo estático gerado por npm run update-catalog,
+// servido do próprio site para evitar CORS da API de catálogo)
 let catalogCache: { movies: Set<number>; series: Set<number> } | null = null;
 let catalogPromise: Promise<{ movies: Set<number>; series: Set<number> }> | null = null;
 
 const getCatalogIds = async () => {
   if (catalogCache) return catalogCache;
   if (!catalogPromise) {
-    catalogPromise = catalogApi.get('/all-ids').then(({ data }) => {
-      const movies = new Set<number>();
-      const series = new Set<number>();
-      if (data?.status === 'success') {
-        (data.results?.movies || []).forEach((i: any) => movies.add(Number(i.tmdb_id)));
-        (data.results?.series || []).forEach((i: any) => series.add(Number(i.tmdb_id)));
-      }
-      catalogCache = { movies, series };
-      return catalogCache;
-    }).catch(() => ({ movies: new Set<number>(), series: new Set<number>() }));
+    catalogPromise = fetch(`${import.meta.env.BASE_URL}catalog-ids.json`)
+      .then((res) => res.json())
+      .then((data) => {
+        const catalog = {
+          movies: new Set<number>(data.m || []),
+          series: new Set<number>(data.s || []),
+        };
+        catalogCache = catalog;
+        return catalog;
+      })
+      .catch(() => ({ movies: new Set<number>(), series: new Set<number>() }));
   }
   return catalogPromise;
 };
