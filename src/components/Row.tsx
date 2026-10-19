@@ -26,6 +26,17 @@ interface RowProps {
   catalogType?: 'movie' | 'series' | 'all';
 }
 
+const fetchPageWithRetry = async (url: string, attempts = 3): Promise<any | null> => {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await api.get(url);
+    } catch {
+      await new Promise((res) => setTimeout(res, 400 * (i + 1)));
+    }
+  }
+  return null;
+};
+
 const Row = ({ 
   title, 
   fetchUrl, 
@@ -84,16 +95,16 @@ const Row = ({
             setMovies(detailedMovies.filter(m => m !== null));
           }
         } else if (fetchUrl) {
-          // Busca 3 páginas do TMDB para encher a categoria (~60 itens)
+          // Busca 3 páginas do TMDB para encher a categoria (~60 itens), com retry por página
           const separator = fetchUrl.includes('?') ? '&' : '?';
           const pages = await Promise.all(
-            [1, 2, 3].map(p => api.get(`${fetchUrl}${separator}page=${p}`).catch(() => null))
+            [1, 2, 3].map(p => fetchPageWithRetry(`${fetchUrl}${separator}page=${p}`))
           );
           const seen = new Set<number>();
           const all: Movie[] = [];
           for (const p of pages) {
             for (const m of (p?.data?.results || [])) {
-              if (m && m.id && !seen.has(m.id)) {
+              if (m && m.id && !seen.has(m.id) && m.media_type !== 'person' && (m.backdrop_path || m.poster_path)) {
                 seen.add(m.id);
                 all.push(m);
               }
@@ -144,7 +155,7 @@ const Row = ({
 
   return (
     <div className={`space-y-0.5 md:space-y-2 px-4 md:px-8 lg:px-12 my-8 relative z-20 ${isLargeRow ? 'h-[350px] md:h-[500px]' : 'h-40 md:h-52'}`}>
-      <h2 className="w-56 cursor-pointer text-sm font-semibold text-[#e5e5e5] transition duration-200 hover:text-white md:text-2xl">
+      <h2 className="w-max max-w-full cursor-pointer font-display text-xl font-normal tracking-widest text-[#e5e5e5] transition duration-200 hover:text-white md:text-3xl">
         {title}
       </h2>
 
@@ -173,10 +184,10 @@ const Row = ({
                   onMovieClick(movie);
                 }
               }}
-              className={`relative cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-[60] focus:scale-110 focus:z-[60] focus:ring-4 focus:ring-red-600 active:scale-95 group/item flex flex-col outline-none rounded-lg overflow-hidden p-1
+              className={`relative cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-[60] focus:scale-110 focus:z-[60] focus:ring-4 focus:ring-red-600 active:scale-95 group/item outline-none rounded-xl overflow-hidden shadow-lg shadow-black/60 ring-1 ring-white/10 hover:ring-red-600/70
                 ${isLargeRow 
-                  ? 'h-[280px] min-w-[130px] md:h-[420px] md:min-w-[240px]' 
-                  : 'h-32 min-w-[150px] md:h-44 md:min-w-[260px]'
+                  ? 'h-[280px] min-w-[160px] md:h-[420px] md:min-w-[270px]' 
+                  : 'h-32 min-w-[150px] md:h-44 md:min-w-[240px]'
                 }`}
               onClick={() => {
                 console.log("Row Image clicked:", movie.title || movie.name);
@@ -186,12 +197,18 @@ const Row = ({
               <img
                 src={`https://image.tmdb.org/t/p/w500/${isLargeRow ? movie.poster_path : (movie.backdrop_path || movie.poster_path)}`}
                 alt={movie.title || movie.name}
-                className="rounded-sm object-cover md:rounded w-full h-[85%] pointer-events-none"
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-transform duration-500 group-hover/item:scale-110"
               />
-              <div className="absolute inset-0 h-[85%] bg-black/0 group-hover/item:bg-black/10 transition-colors duration-200" />
-              
-              <div className="mt-1 px-1">
-                <p className="text-[10px] md:text-xs font-medium text-gray-300 truncate group-hover/item:text-white transition-colors">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent group-hover/item:from-red-950/95 group-hover/item:via-black/35 transition-colors duration-300" />
+
+              {typeof movie.vote_average === 'number' && movie.vote_average > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 backdrop-blur-sm text-yellow-400 text-[9px] md:text-[11px] font-bold px-1.5 py-0.5 rounded-full ring-1 ring-white/20">
+                  ★ {movie.vote_average.toFixed(1)}
+                </span>
+              )}
+
+              <div className="absolute inset-x-0 bottom-0 px-1.5 pb-2 pt-6 text-center">
+                <p className="font-title text-[10px] md:text-xs font-semibold uppercase tracking-wide leading-tight text-white card-title-shadow line-clamp-2 group-hover/item:text-yellow-300 transition-colors duration-200">
                   {movie.title || movie.name || movie.original_name}
                 </p>
               </div>
