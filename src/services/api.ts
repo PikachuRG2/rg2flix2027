@@ -3,24 +3,25 @@ import axios from 'axios';
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 export const requests = {
-  fetchTrending: `/trending/all/week?language=pt-BR&region=BR`,
+  // language=pt-BR e region=BR são adicionados automaticamente pelo interceptor
+  fetchTrending: `/trending/all/week`,
   fetchNetflixOriginals: `/discover/tv?with_networks=213&watch_region=BR&with_original_language=en|pt|es`,
-  fetchTopRated: `/movie/top_rated?watch_region=BR&language=pt-BR`,
+  fetchTopRated: `/movie/top_rated?watch_region=BR`,
   fetchActionMovies: `/discover/movie?with_genres=28&watch_region=BR&with_original_language=en|pt|es`,
   fetchComedyMovies: `/discover/movie?with_genres=35&watch_region=BR&with_original_language=en|pt|es`,
   fetchHorrorMovies: `/discover/movie?with_genres=27&watch_region=BR&with_original_language=en|pt|es`,
   fetchRomanceMovies: `/discover/movie?with_genres=10749&watch_region=BR&with_original_language=en|pt|es`,
   fetchDocumentaries: `/discover/movie?with_genres=99&watch_region=BR&with_original_language=en|pt|es`,
-  fetchAnimes: `/discover/tv?with_genres=16&with_original_language=ja&language=pt-BR`,
-  fetchSeriesPopular: `/tv/popular?language=pt-BR`,
-  fetchSeriesTopRated: `/tv/top_rated?language=pt-BR`,
-  fetchKidsMovies: `/discover/movie?with_genres=10751&language=pt-BR`,
-  fetchKidsTV: `/discover/tv?with_genres=10762&language=pt-BR`,
-  fetchAnimationTV: `/discover/tv?with_genres=16&language=pt-BR`,
-  fetchAnimationMovies: `/discover/movie?with_genres=16&language=pt-BR`,
-  fetchMovieVideos: (id: number) => `/movie/${id}/videos?language=pt-BR`,
-  fetchTvVideos: (id: number) => `/tv/${id}/videos?language=pt-BR`,
-  fetchSearch: (query: string) => `/search/multi?query=${encodeURIComponent(query)}&include_adult=false&language=pt-BR&region=BR`,
+  fetchAnimes: `/discover/tv?with_genres=16&with_original_language=ja`,
+  fetchSeriesPopular: `/tv/popular`,
+  fetchSeriesTopRated: `/tv/top_rated`,
+  fetchKidsMovies: `/discover/movie?with_genres=10751`,
+  fetchKidsTV: `/discover/tv?with_genres=10762`,
+  fetchAnimationTV: `/discover/tv?with_genres=16`,
+  fetchAnimationMovies: `/discover/movie?with_genres=16`,
+  fetchMovieVideos: (id: number) => `/movie/${id}/videos`,
+  fetchTvVideos: (id: number) => `/tv/${id}/videos`,
+  fetchSearch: (query: string) => `/search/multi?query=${encodeURIComponent(query)}&include_adult=false`,
   fetchExternalIds: (type: string, id: string) => `/${type}/${id}/external_ids`,
 };
 

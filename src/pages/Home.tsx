@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 import Footer from '../components/Footer';
 import { requests } from '../services/api';
 import { db } from '../lib/firebase';
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { Tv, Film, Clapperboard, Smile, Search, MonitorPlay, List, History } from 'lucide-react';
 
@@ -23,24 +23,28 @@ const Home = () => {
     const fetchHistory = async () => {
       try {
         const historyRef = collection(db, 'watch_history');
+        // Ordenação feita no cliente para não exigir índice composto no Firestore
         const q = query(
           historyRef,
           where('user_id', '==', user.id),
-          orderBy('last_watched_at', 'desc'),
-          limit(20)
+          limit(50)
         );
 
         const querySnapshot = await getDocs(q);
-        const movies = querySnapshot.docs.map(doc => {
-          const item = doc.data();
-          return {
-            ...item.movie_data,
-            continue_watching: {
-              season: item.season,
-              episode: item.episode
-            }
-          };
-        });
+        const movies = querySnapshot.docs
+          .map(doc => {
+            const item = doc.data();
+            return {
+              ...item.movie_data,
+              continue_watching: {
+                season: item.season,
+                episode: item.episode
+              },
+              _ts: item.last_watched_at
+            };
+          })
+          .sort((a, b) => (b._ts || '').localeCompare(a._ts || ''))
+          .slice(0, 20);
         setWatchHistory(movies);
       } catch (error) {
         console.error('Erro ao buscar histórico:', error);

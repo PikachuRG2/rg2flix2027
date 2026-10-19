@@ -125,7 +125,7 @@ const Player = () => {
         }
 
         const { data: tmdbData } = await api.get(
-          `/${type}/${id}?language=pt-BR`
+          `/${type}/${id}`
         );
 
         setMovieData(tmdbData);
@@ -137,7 +137,7 @@ const Player = () => {
 
           for (let i = 1; i <= total; i++) {
             const { data } = await api.get(
-              `/tv/${id}/season/${i}?language=pt-BR`
+              `/tv/${id}/season/${i}`
             );
             all.push(data);
           }
