@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, Bell, User, LogOut, Settings, X, Menu, ChevronDown, ShieldCheck, Monitor } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings, X, Menu, ChevronDown, Monitor } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import CountdownTimer from './CountdownTimer';
@@ -422,17 +422,6 @@ const Navbar = () => {
           <button className="focus-visible:outline-white p-1 rounded">
             <Bell className="h-6 w-6 cursor-pointer" />
           </button>
-
-          {user?.role === 'admin' && (
-            <button
-              className="hidden sm:flex items-center gap-2 cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-1.5 rounded transition focus-visible:outline-white"
-              onClick={() => navigate('/admin')}
-              title="Painel de gerenciamento"
-            >
-              <ShieldCheck className="h-5 w-5" />
-              <span className="hidden lg:inline">Admin</span>
-            </button>
-          )}
 
           <div className="relative" ref={userMenuRef}>
             <button 
