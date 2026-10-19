@@ -27,6 +27,25 @@ const getCatalogIds = async () => {
   return catalogPromise;
 };
 
+// Limpa nomes de arquivo colados (ex: "1-contra-todos-s02e01-a-prisao.1080p.BluRay.x264")
+// para uma busca limpa no TMDB
+const cleanFilenameQuery = (raw: string): string => {
+  let q = raw.trim();
+  // extensão de vídeo no final
+  q = q.replace(/\.(mkv|mp4|avi|mov|wmv|flv|webm|m4v|mpg|mpeg|ts)$/i, ' ');
+  // marcador de temporada/episódio (s02e01, S02E01, 2x01)
+  q = q.replace(/\b(s\d{1,2}\s?[e|x]\s?\d{1,3}|\d{1,2}x\d{1,3})\b/gi, ' ');
+  // tags de qualidade/codec/idioma
+  q = q.replace(/\b(720p|1080p|2160p|4k|uhd|hdr10?|dolby|vision|hdrip|webrip|brrip|bdrip|dvdrip|bluray|blu-ray|hdtv|web-?dl|web|nf|amzn|dual\s?audio|dublado|legendado|legendas?|portugu[eê]s|pt-?br|ingl[eê]s|x264|x265|h\.?264|h\.?265|hevc|aac|ac3|eac3|5\.1|7\.1|10bit|8bit|remux|proper|repack|internal)\b/gi, ' ');
+  // separadores comuns de filename
+  q = q.replace(/[._\-]+/g, ' ');
+  // espaço entre minúscula/maiúscula (camelCase de nomes colados)
+  q = q.replace(/([a-z])([A-Z])/g, '$1 $2');
+  // colapsa espaços
+  q = q.replace(/\s+/g, ' ').trim();
+  return q || raw.trim();
+};
+
 const Search = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -48,8 +67,9 @@ const Search = () => {
       setLoading(true);
       try {
         // Busca metadados no TMDB e os IDs do catálogo em paralelo
+        // (aceita nome normal ou nome de arquivo colado — é limpo antes de buscar)
         const [{ data }, catalog] = await Promise.all([
-          api.get(requests.fetchSearch(query)),
+          api.get(requests.fetchSearch(cleanFilenameQuery(query))),
           getCatalogIds(),
         ]);
         const filtered = (data.results || [])

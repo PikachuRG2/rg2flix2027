@@ -96,6 +96,7 @@ const Player = () => {
 
     let list = [
       { name: '💎 RG2 VIP', url: 'vip' },
+      { name: '🚀 RG5', url: 'rg5' },
       { name: '🔥 RG2Flix', url: playerflixUrl },
       { name: '🎬 SV FREE', url: myEmbedUrl },
     ];
@@ -109,10 +110,49 @@ const Player = () => {
 
   const servers = getServers();
 
+  // RG5: resolve o ID pelo nome via busca TMDB (corrige IDs errados do catálogo)
+  const [rg5Id, setRg5Id] = useState<number | null>(null);
+  const [rg5Resolving, setRg5Resolving] = useState(false);
+
+  useEffect(() => {
+    setRg5Id(null);
+  }, [id, type]);
+
+  useEffect(() => {
+    const server = servers[activeServer];
+    if (!server || server.url !== 'rg5' || !movieData) return;
+
+    let cancelled = false;
+
+    const resolve = async () => {
+      setRg5Resolving(true);
+      try {
+        const title = movieData.title || movieData.name || '';
+        const endpoint = type === 'tv' ? '/search/tv' : '/search/movie';
+        const { data } = await api.get(`${endpoint}?query=${encodeURIComponent(title)}`);
+        const found = data?.results?.[0]?.id;
+        if (!cancelled) setRg5Id(found ? Number(found) : Number(id));
+      } catch {
+        if (!cancelled) setRg5Id(Number(id));
+      } finally {
+        if (!cancelled) setRg5Resolving(false);
+      }
+    };
+
+    resolve();
+    return () => { cancelled = true; };
+  }, [activeServer, movieData, type, id]);
+
   const playerUrl =
     servers[activeServer]?.url === 'vip'
       ? fallbackUrls[fallbackIndex]
-      : servers[activeServer]?.url;
+      : servers[activeServer]?.url === 'rg5'
+        ? (rg5Id
+            ? (type === 'tv'
+                ? `https://embedplayapi.top/embed/${rg5Id}/${season}/${episode}`
+                : `https://embedplayapi.top/embed/${rg5Id}`)
+            : '')
+        : servers[activeServer]?.url;
 
   // fetch
   useEffect(() => {
@@ -200,6 +240,9 @@ const Player = () => {
         
         if (server.url === 'vip') {
           url = `https://embedplayapi.top/embed/${id}/${next.s}/${next.e}`;
+        } else if (server.url === 'rg5') {
+          const baseId = rg5Id || Number(id);
+          url = `https://embedplayapi.top/embed/${baseId}/${next.s}/${next.e}`;
         } else {
           // Ajusta a URL do servidor dinamicamente
           url = server.url
@@ -352,9 +395,9 @@ const Player = () => {
       </div>
 
       {/* LOADING */}
-      {(loading || iframeLoading) && (
+      {(loading || iframeLoading || rg5Resolving) && (
         <div className="absolute inset-0 flex items-center justify-center text-white">
-          Carregando...
+          {rg5Resolving ? 'RG5: localizando conteúdo...' : 'Carregando...'}
         </div>
       )}
 
