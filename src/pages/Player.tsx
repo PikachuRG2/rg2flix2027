@@ -56,8 +56,12 @@ const Player = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // fallback
+  // fallback (o primeiro é o servidor RG2 VIP ativo; os demais são trocados automaticamente em caso de erro)
   const fallbackUrls = [
+    type === 'tv'
+      ? `https://embedplayapi.top/embed/${id}/${season}/${episode}`
+      : `https://embedplayapi.top/embed/${id}`,
+
     type === 'tv'
       ? `https://embedplayapi.site/embed/${id}/${season}/${episode}`
       : `https://embedplayapi.site/embed/${id}`,
@@ -195,7 +199,7 @@ const Player = () => {
         const server = servers[activeServer];
         
         if (server.url === 'vip') {
-          url = `https://embedplayapi.site/embed/${id}/${next.s}/${next.e}`;
+          url = `https://embedplayapi.top/embed/${id}/${next.s}/${next.e}`;
         } else {
           // Ajusta a URL do servidor dinamicamente
           url = server.url
