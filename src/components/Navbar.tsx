@@ -228,6 +228,19 @@ const Navbar = () => {
                     Minha lista
                   </li>
                   <li 
+                    className="px-4 py-3 text-center text-sm text-gray-300 hover:bg-white/10 transition-colors cursor-pointer focus:bg-white/20 outline-none" 
+                    tabIndex={0} 
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        navigate('/superhqs');
+                        setShowMobileMenu(false);
+                      }
+                    }} 
+                    onClick={() => { navigate('/superhqs'); setShowMobileMenu(false); }}
+                  >
+                    SuperHQs
+                  </li>
+                  <li 
                     className="px-4 py-3 text-center text-sm font-bold text-red-600 hover:bg-white/10 transition-colors cursor-pointer focus:bg-white/20 outline-none" 
                     tabIndex={0} 
                     onKeyDown={(e) => {
@@ -360,6 +373,18 @@ const Navbar = () => {
               onClick={() => navigate('/my-list')}
             >
               Minha lista
+            </li>
+            <li 
+              className="nav-link cursor-pointer text-gray-300 hover:text-white transition outline-none focus-visible:text-white focus-visible:underline" 
+              tabIndex={0} 
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  navigate('/superhqs');
+                }
+              }} 
+              onClick={() => navigate('/superhqs')}
+            >
+              SuperHQs
             </li>
             <li 
               className="nav-link cursor-pointer text-red-600 font-bold hover:text-red-500 transition outline-none focus-visible:text-red-400 focus-visible:underline" 

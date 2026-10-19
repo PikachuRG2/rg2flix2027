@@ -5,7 +5,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const noChromeRoutes = ['/login', '/signup', '/plans', '/player', '/watch'];
   // Páginas de embed/tela cheia com controles próprios: sem Navbar para não sobrepor botões
-  const noNavbarRoutes = ['/movies', '/series', '/tv', '/tv-esportes', '/filmes-pagos'];
+  const noNavbarRoutes = ['/movies', '/series', '/tv', '/tv-esportes', '/filmes-pagos', '/superhqs'];
 
   if (noChromeRoutes.some(route => location.pathname.startsWith(route))) {
     return <>{children}</>;

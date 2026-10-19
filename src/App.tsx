@@ -17,6 +17,7 @@ import Series from './pages/Series';
 import ContinueWatching from './pages/ContinueWatching';
 import Devices from './pages/Devices';
 import FilmesPagos from './pages/FilmesPagos';
+import SuperHqs from './pages/SuperHqs';
 import TermsOfUse from './pages/TermsOfUse';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import SecurityManager from './components/SecurityManager';
@@ -61,6 +62,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <FilmesPagos />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/superhqs" 
+            element={
+              <ProtectedRoute>
+                <SuperHqs />
               </ProtectedRoute>
             } 
           />
