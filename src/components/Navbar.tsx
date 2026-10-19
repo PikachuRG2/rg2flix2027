@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, Bell, User, LogOut, Settings, X, Menu, ChevronDown } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings, X, Menu, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -94,6 +94,21 @@ const Navbar = () => {
                   >
                     Início
                   </li>
+                  {user?.role === 'admin' && (
+                    <li
+                      className="px-4 py-3 text-center text-sm font-bold text-red-500 hover:bg-white/10 transition-colors cursor-pointer focus:bg-white/20 outline-none"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          navigate('/admin');
+                          setShowMobileMenu(false);
+                        }
+                      }}
+                      onClick={() => { navigate('/admin'); setShowMobileMenu(false); }}
+                    >
+                      Painel Admin
+                    </li>
+                  )}
                   {(user?.role === 'admin' || (user?.plan && user.plan !== 'standard')) && (
                     <>
                       <li 
@@ -371,6 +386,17 @@ const Navbar = () => {
           <button className="focus-visible:outline-white p-1 rounded">
             <Bell className="h-6 w-6 cursor-pointer" />
           </button>
+
+          {user?.role === 'admin' && (
+            <button
+              className="hidden sm:flex items-center gap-2 cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-1.5 rounded transition focus-visible:outline-white"
+              onClick={() => navigate('/admin')}
+              title="Painel de gerenciamento"
+            >
+              <ShieldCheck className="h-5 w-5" />
+              <span className="hidden lg:inline">Admin</span>
+            </button>
+          )}
 
           <div className="relative" ref={userMenuRef}>
             <button 

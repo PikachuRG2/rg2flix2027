@@ -84,8 +84,22 @@ const Row = ({
             setMovies(detailedMovies.filter(m => m !== null));
           }
         } else if (fetchUrl) {
-          const request = await api.get(fetchUrl);
-          setMovies(request.data.results);
+          // Busca 3 páginas do TMDB para encher a categoria (~60 itens)
+          const separator = fetchUrl.includes('?') ? '&' : '?';
+          const pages = await Promise.all(
+            [1, 2, 3].map(p => api.get(`${fetchUrl}${separator}page=${p}`).catch(() => null))
+          );
+          const seen = new Set<number>();
+          const all: Movie[] = [];
+          for (const p of pages) {
+            for (const m of (p?.data?.results || [])) {
+              if (m && m.id && !seen.has(m.id)) {
+                seen.add(m.id);
+                all.push(m);
+              }
+            }
+          }
+          setMovies(all);
         }
       } catch (error) {
         console.error("Error fetching row movies:", error);
@@ -136,7 +150,7 @@ const Row = ({
 
       <div className="group relative -ml-2">
         <div 
-          className={`absolute top-0 bottom-0 left-2 z-[70] m-auto h-12 w-12 cursor-pointer opacity-0 transition hover:scale-125 group-hover:opacity-100 flex items-center justify-center bg-black/30 rounded-full hover:bg-black/60 ${!showLeft && 'hidden'}`}
+          className={`absolute top-0 bottom-0 left-2 z-[70] m-auto h-12 w-12 cursor-pointer transition hover:scale-125 flex items-center justify-center bg-black/30 rounded-full hover:bg-black/60 ${!showLeft && 'hidden'}`}
           onClick={() => handleClick('left')}
         >
           <ChevronLeft className="h-9 w-9 text-white" />
@@ -186,7 +200,7 @@ const Row = ({
         </div>
 
         <div 
-          className="absolute top-0 bottom-0 right-2 z-[70] m-auto h-12 w-12 cursor-pointer opacity-0 transition hover:scale-125 group-hover:opacity-100 flex items-center justify-center bg-black/30 rounded-full hover:bg-black/60"
+          className="absolute top-0 bottom-0 right-2 z-[70] m-auto h-12 w-12 cursor-pointer transition hover:scale-125 flex items-center justify-center bg-black/30 rounded-full hover:bg-black/60"
           onClick={() => handleClick('right')}
         >
           <ChevronRight className="h-9 w-9 text-white" />
